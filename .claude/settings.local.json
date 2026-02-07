@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.pyannote.ai)",
+      "WebFetch(domain:www.assemblyai.com)"
+    ]
+  }
+}
