@@ -11,7 +11,7 @@ import SwiftUI
 struct deafappApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SonarApp()
         }
     }
 }

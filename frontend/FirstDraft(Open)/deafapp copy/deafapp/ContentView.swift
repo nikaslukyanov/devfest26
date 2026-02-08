@@ -1,5 +1,100 @@
 import SwiftUI
 
+// MARK: - Main App Entry Point
+
+struct SonarApp: View {
+    @State private var showingConversation = false
+    
+    var body: some View {
+        if showingConversation {
+            ContentView(onEndConversation: {
+                showingConversation = false
+            })
+        } else {
+            HomePageView(onStartConversation: {
+                showingConversation = true
+            })
+        }
+    }
+}
+
+// MARK: - Homepage View
+
+struct HomePageView: View {
+    let onStartConversation: () -> Void
+    
+    var body: some View {
+        ZStack {
+            // Gradient background
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.blue.opacity(0.6),
+                    Color.cyan.opacity(0.4),
+                    Color.teal.opacity(0.3)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            VStack(spacing: 40) {
+                Spacer()
+                
+                // App Icon/Logo
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.9))
+                        .frame(width: 120, height: 120)
+                        .shadow(radius: 20)
+                    
+                    Image(systemName: "waveform.circle.fill")
+                        .font(.system(size: 70))
+                        .foregroundColor(.blue)
+                }
+                
+                // App Title
+                Text("Sonar")
+                    .font(.system(size: 56, weight: .bold))
+                    .foregroundColor(.white)
+                
+                // Description
+                VStack(spacing: 12) {
+                    Text("Navigate group conversations")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white.opacity(0.95))
+                    
+                    Text("Track speakers around you and follow\nthe conversation in real-time")
+                        .font(.system(size: 16))
+                        .foregroundColor(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                }
+                .padding(.horizontal, 40)
+                
+                Spacer()
+                
+                // Start Conversation Button
+                Button(action: onStartConversation) {
+                    HStack(spacing: 12) {
+                        Image(systemName: "mic.fill")
+                            .font(.system(size: 22))
+                        Text("Start Group Conversation")
+                            .font(.system(size: 20, weight: .semibold))
+                    }
+                    .foregroundColor(.blue)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(Color.white)
+                    .cornerRadius(16)
+                    .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
+                }
+                .padding(.horizontal, 32)
+                .padding(.bottom, 60)
+            }
+        }
+    }
+}
+
 // MARK: - Models
 
 struct Speaker: Identifiable, Equatable {
@@ -24,6 +119,8 @@ struct ConversationSummary {
 // MARK: - Main View
 
 struct ContentView: View {
+    let onEndConversation: () -> Void
+    
     @State private var speakers: [Speaker] = [
         Speaker(name: "Sarah", color: .blue, angle: 0),
         Speaker(name: "Alex", color: .green, angle: 270),
@@ -107,7 +204,8 @@ struct ContentView: View {
                 
                 ConversationSummaryView(
                     summary: summary,
-                    isPresented: $showingSummary
+                    isPresented: $showingSummary,
+                    onEndConversation: onEndConversation
                 )
                 .transition(.move(edge: .bottom))
             }
@@ -174,7 +272,6 @@ struct SpeakerCompassView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
             let radius: CGFloat = 100
             
             ZStack {
@@ -430,11 +527,15 @@ struct AudioWaveform: View {
 struct ConversationSummaryView: View {
     let summary: ConversationSummary
     @Binding var isPresented: Bool
+    let onEndConversation: () -> Void
     
     var body: some View {
         VStack(spacing: 20) {
             HStack {
-                Button(action: { isPresented = false }) {
+                Button(action: {
+                    isPresented = false
+                    onEndConversation()
+                }) {
                     Text("Done")
                         .foregroundColor(.blue)
                 }
@@ -505,5 +606,5 @@ struct ConversationSummaryView: View {
 // MARK: - Preview
 
 #Preview {
-    ContentView()
+    SonarApp()
 }
